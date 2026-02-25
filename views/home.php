@@ -66,7 +66,7 @@
                             <div class="product-card fade-in" style="animation-delay: <?php echo ($index % 8) * 0.06; ?>s;">
                                 <div class="product-media">
                                     <?php if (!empty($product['image'])): ?>
-                                        <img src="<?php echo htmlspecialchars(productImageUrl($product['image'])); ?>" alt="<?php echo htmlspecialchars($product['name']); ?>" class="product-image" loading="lazy">
+                                        <img src="uploads/<?php echo htmlspecialchars($product['image']); ?>" alt="<?php echo htmlspecialchars($product['name']); ?>" class="product-image">
                                     <?php else: ?>
                                         <div class="product-image d-flex align-items-center justify-content-center bg-light">
                                             <i class="bi bi-bag" style="font-size:2.5rem;color:#2a6f97;"></i>
