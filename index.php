@@ -19,6 +19,9 @@ $dbname = getenv('DB_NAME') ?: 'musing_bartik';
 $username = getenv('DB_USER') ?: 'root';
 $password = getenv('DB_PASS') ?: 'fHtN4xVh7LI99F6PRSYoO5xB';
 
+$pdo = null;
+$dbConnectionError = null;
+
 try {
     $pdo = new PDO(
         "mysql:host=$host;port=$port;dbname=$dbname;charset=utf8mb4",
@@ -27,38 +30,41 @@ try {
     );
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
-    die("Connection failed: " . $e->getMessage());
+    $dbConnectionError = $e->getMessage();
+    error_log("DB connection failed: " . $dbConnectionError);
 }
 
-// Create tables if they do not exist
-$pdo->exec("
-    CREATE TABLE IF NOT EXISTS products (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        name VARCHAR(200) NOT NULL,
-        price INT NOT NULL,
-        image VARCHAR(500),
-        category VARCHAR(30) NOT NULL DEFAULT 'women',
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
-");
+if ($pdo) {
+    // Create tables if they do not exist
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS products (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            name VARCHAR(200) NOT NULL,
+            price INT NOT NULL,
+            image VARCHAR(500),
+            category VARCHAR(30) NOT NULL DEFAULT 'women',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ");
 
-$categoryColumn = $pdo->query("SHOW COLUMNS FROM products LIKE 'category'");
-if (!$categoryColumn || $categoryColumn->rowCount() === 0) {
-    $pdo->exec("ALTER TABLE products ADD COLUMN category VARCHAR(30) NOT NULL DEFAULT 'women' AFTER image");
+    $categoryColumn = $pdo->query("SHOW COLUMNS FROM products LIKE 'category'");
+    if (!$categoryColumn || $categoryColumn->rowCount() === 0) {
+        $pdo->exec("ALTER TABLE products ADD COLUMN category VARCHAR(30) NOT NULL DEFAULT 'women' AFTER image");
+    }
+
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS orders (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            name VARCHAR(200) NOT NULL,
+            phone VARCHAR(20) NOT NULL,
+            address TEXT NOT NULL,
+            product_id INT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            is_processed BOOLEAN DEFAULT 0,
+            FOREIGN KEY (product_id) REFERENCES products(id)
+        )
+    ");
 }
-
-$pdo->exec("
-    CREATE TABLE IF NOT EXISTS orders (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        name VARCHAR(200) NOT NULL,
-        phone VARCHAR(20) NOT NULL,
-        address TEXT NOT NULL,
-        product_id INT NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        is_processed BOOLEAN DEFAULT 0,
-        FOREIGN KEY (product_id) REFERENCES products(id)
-    )
-");
 
 function getCategories()
 {
@@ -92,6 +98,9 @@ function productImageUrl($filename)
 function getProducts($category = null)
 {
     global $pdo;
+    if (!$pdo) {
+        return [];
+    }
     if ($category !== null && array_key_exists($category, PRODUCT_CATEGORIES)) {
         $stmt = $pdo->prepare("SELECT * FROM products WHERE category = ? ORDER BY created_at DESC");
         $stmt->execute([$category]);
@@ -105,6 +114,9 @@ function getProducts($category = null)
 function getOrders()
 {
     global $pdo;
+    if (!$pdo) {
+        return [];
+    }
     $stmt = $pdo->query("
         SELECT o.*, p.name as product_name
         FROM orders o
@@ -117,6 +129,9 @@ function getOrders()
 function addProduct($name, $price, $image, $category = 'women')
 {
     global $pdo;
+    if (!$pdo) {
+        return false;
+    }
     $stmt = $pdo->prepare("INSERT INTO products (name, price, image, category) VALUES (?, ?, ?, ?)");
     return $stmt->execute([$name, $price, $image, normalizeCategory($category)]);
 }
@@ -124,6 +139,9 @@ function addProduct($name, $price, $image, $category = 'women')
 function addOrder($name, $phone, $address, $product_id)
 {
     global $pdo;
+    if (!$pdo) {
+        return false;
+    }
     $stmt = $pdo->prepare("INSERT INTO orders (name, phone, address, product_id) VALUES (?, ?, ?, ?)");
     return $stmt->execute([$name, $phone, $address, $product_id]);
 }
@@ -131,6 +149,9 @@ function addOrder($name, $phone, $address, $product_id)
 function deleteProduct($id)
 {
     global $pdo;
+    if (!$pdo) {
+        return false;
+    }
     $stmt = $pdo->prepare("DELETE FROM products WHERE id = ?");
     return $stmt->execute([$id]);
 }
@@ -138,6 +159,9 @@ function deleteProduct($id)
 function deleteOrder($id)
 {
     global $pdo;
+    if (!$pdo) {
+        return false;
+    }
     $stmt = $pdo->prepare("DELETE FROM orders WHERE id = ?");
     return $stmt->execute([$id]);
 }
