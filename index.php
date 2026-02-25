@@ -6,11 +6,27 @@ $adminUser = getenv('ADMIN_USER') ?: 'admin';
 $adminPass = getenv('ADMIN_PASS') ?: 'change-this-password';
 
 // MySQL connection
-$host = 'beranashop';
-$port = '3306';
-$dbname = 'musing_bartik';
-$username = 'root';
-$password = 'fHtN4xVh7LI99F6PRSYoO5xB';
+// Defaults are aligned with current Liara database settings.
+$host = getenv('DB_HOST') ?: 'beranashop';
+$port = getenv('DB_PORT') ?: '3306';
+$dbname = getenv('DB_NAME') ?: 'musing_bartik';
+$username = getenv('DB_USER') ?: 'root';
+$password = getenv('DB_PASS') ?: 'fHtN4xVh7LI99F6PRSYoO5xB';
+
+// Support quick URL format: mysql://user:pass@host:port/dbname
+$databaseUrl = getenv('DATABASE_URL');
+if ($databaseUrl) {
+    $parts = parse_url($databaseUrl);
+    if ($parts !== false) {
+        $host = $parts['host'] ?? $host;
+        $port = isset($parts['port']) ? (string)$parts['port'] : $port;
+        $username = $parts['user'] ?? $username;
+        $password = $parts['pass'] ?? $password;
+        if (!empty($parts['path'])) {
+            $dbname = ltrim($parts['path'], '/');
+        }
+    }
+}
 
 try {
     $pdo = new PDO(

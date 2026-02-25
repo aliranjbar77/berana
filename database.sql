@@ -1,8 +1,8 @@
 -- ساخت دیتابیس
-CREATE DATABASE IF NOT EXISTS borana_shoes;
+CREATE DATABASE IF NOT EXISTS musing_bartik;
 
 -- استفاده از دیتابیس
-USE borana_shoes;
+USE musing_bartik;
 
 -- ساخت جدول محصولات
 CREATE TABLE IF NOT EXISTS products (
