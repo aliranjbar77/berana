@@ -54,6 +54,7 @@
                                 $name = trim($_POST['product_name'] ?? '');
                                 $price = (int)($_POST['product_price'] ?? 0);
                                 $category = $_POST['product_category'] ?? 'women';
+                                $uploadErrorMessage = '';
 
                                 if ($name !== '' && $price > 0) {
                                     $image = '';
@@ -62,12 +63,29 @@
                                         if (!is_dir($uploadDir)) {
                                             mkdir($uploadDir, 0777, true);
                                         }
-                                        $safeName = preg_replace('/[^a-zA-Z0-9._-]/', '_', $_FILES['product_image']['name']);
-                                        $image = time() . '_' . $safeName;
-                                        move_uploaded_file($_FILES['product_image']['tmp_name'], $uploadDir . $image);
+                                        $allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+                                        $tmp = $_FILES['product_image']['tmp_name'];
+                                        $detectedType = mime_content_type($tmp);
+                                        $size = (int)($_FILES['product_image']['size'] ?? 0);
+
+                                        if (!in_array($detectedType, $allowedTypes, true)) {
+                                            $uploadErrorMessage = 'فرمت تصویر معتبر نیست (jpg/png/webp/gif).';
+                                        } elseif ($size > 3 * 1024 * 1024) {
+                                            $uploadErrorMessage = 'حجم تصویر بیشتر از ۳ مگابایت است.';
+                                        } else {
+                                            $safeName = preg_replace('/[^a-zA-Z0-9._-]/', '_', $_FILES['product_image']['name']);
+                                            $image = time() . '_' . $safeName;
+                                            $target = $uploadDir . $image;
+                                            if (!move_uploaded_file($tmp, $target)) {
+                                                $uploadErrorMessage = 'آپلود عکس انجام نشد. دسترسی پوشه uploads را بررسی کنید.';
+                                                $image = '';
+                                            }
+                                        }
                                     }
 
-                                    if (addProduct($name, $price, $image, $category)) {
+                                    if ($uploadErrorMessage !== '') {
+                                        echo '<div class="alert alert-danger"><strong>خطا:</strong> ' . htmlspecialchars($uploadErrorMessage) . '</div>';
+                                    } elseif (addProduct($name, $price, $image, $category)) {
                                         echo '<div class="alert alert-success"><strong>موفق:</strong> محصول ثبت شد.</div>';
                                     } else {
                                         echo '<div class="alert alert-danger"><strong>خطا:</strong> ثبت محصول انجام نشد.</div>';
@@ -127,7 +145,7 @@
                                     echo '<td>' . number_format((int)$product['price']) . ' تومان</td>';
                                     echo '<td>';
                                     if (!empty($product['image'])) {
-                                        echo '<img src="uploads/' . htmlspecialchars($product['image']) . '" alt="" style="width:48px;height:48px;object-fit:cover;border-radius:10px;">';
+                                        echo '<img src="' . htmlspecialchars(productImageUrl($product['image'])) . '" alt="" style="width:48px;height:48px;object-fit:cover;border-radius:10px;" loading="lazy">';
                                     } else {
                                         echo '<i class="bi bi-image text-muted" style="font-size:1.4rem;"></i>';
                                     }

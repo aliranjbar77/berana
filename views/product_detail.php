@@ -90,7 +90,7 @@
                             <div class="card-body p-0">
                                 <?php
                                 if ($product['image']) {
-                                    echo '<img src="uploads/' . $product['image'] . '" alt="' . $product['name'] . '" class="img-fluid">';
+                                    echo '<img src="' . htmlspecialchars(productImageUrl($product['image'])) . '" alt="' . htmlspecialchars($product['name']) . '" class="img-fluid product-detail-image" loading="lazy">';
                                 } else {
                                     echo '<div class="d-flex align-items-center justify-content-center bg-light" style="height: 400px;">';
                                     echo '<i class="bi bi-bag" style="font-size: 5rem; color: #667eea;"></i>';
@@ -176,7 +176,7 @@
                         echo '<div class="position-relative overflow-hidden">';
                         
                         if ($related_product['image']) {
-                            echo '<img src="uploads/' . $related_product['image'] . '" alt="' . $related_product['name'] . '" class="product-image">';
+                            echo '<img src="' . htmlspecialchars(productImageUrl($related_product['image'])) . '" alt="' . htmlspecialchars($related_product['name']) . '" class="product-image" loading="lazy">';
                         } else {
                             echo '<div class="product-image d-flex align-items-center justify-content-center bg-light">';
                             echo '<i class="bi bi-bag" style="font-size: 2rem; color: #667eea;"></i>';
