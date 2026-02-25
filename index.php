@@ -1,21 +1,10 @@
 <?php
 
-function env_first(array $keys, ?string $default = null): ?string
-{
-    foreach ($keys as $key) {
-        $value = getenv($key);
-        if ($value !== false && $value !== '') {
-            return $value;
-        }
-    }
-    return $default;
-}
-
-$host = env_first(['DB_HOST', 'MYSQL_HOST'], '127.0.0.1');
-$port = (int)(env_first(['DB_PORT', 'MYSQL_PORT'], '3306'));
-$dbname = env_first(['DB_NAME', 'MYSQL_DATABASE'], 'borana_shoes');
-$username = env_first(['DB_USER', 'MYSQL_USER'], 'root');
-$password = env_first(['DB_PASS', 'MYSQL_PASSWORD'], '');
+$host = getenv('DB_HOST') ?: '127.0.0.1';
+$port = (int)(getenv('DB_PORT') ?: 3306);
+$dbname = getenv('DB_NAME') ?: 'borana_shoes';
+$username = getenv('DB_USER') ?: 'root';
+$password = getenv('DB_PASS') ?: '';
 
 const PRODUCT_CATEGORIES = [
     'women' => 'کتونی زنانه',
@@ -25,7 +14,7 @@ const PRODUCT_CATEGORIES = [
 ];
 
 try {
-    $databaseUrl = env_first(['DATABASE_URL', 'JAWSDB_URL', 'MYSQL_URL'], '');
+    $databaseUrl = getenv('DATABASE_URL') ?: getenv('JAWSDB_URL') ?: '';
 
     if ($databaseUrl !== '') {
         $parts = parse_url($databaseUrl);
@@ -41,15 +30,10 @@ try {
     }
 
     $dsn = "mysql:host={$host};port={$port};dbname={$dbname};charset=utf8mb4";
-    $pdo = new PDO($dsn, $username, $password, [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-        PDO::ATTR_EMULATE_PREPARES => false,
-    ]);
+    $pdo = new PDO($dsn, $username, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
-    error_log('Database connection failed: ' . $e->getMessage());
-    http_response_code(500);
-    die('Database connection failed. Check DB env vars in Liara.');
+    die('Connection failed: ' . $e->getMessage());
 }
 
 $pdo->exec("
