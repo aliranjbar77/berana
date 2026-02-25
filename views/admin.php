@@ -58,6 +58,9 @@
                     <i class="bi bi-gear"></i> پنل مدیریت
                 </h1>
                 <p class="hero-subtitle">مدیریت کامل فروشگاه آنلاین</p>
+                <a href="index.php?action=admin_logout" class="btn btn-outline-light mt-3">
+                    <i class="bi bi-box-arrow-right"></i> خروج از مدیریت
+                </a>
             </div>
         </div>
     </section>
