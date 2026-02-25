@@ -1,9 +1,10 @@
 <?php
 
-$host = 'localhost';
-$dbname = 'borana_shoes';
-$username = 'root';
-$password = '';
+$host = getenv('DB_HOST') ?: '127.0.0.1';
+$port = (int)(getenv('DB_PORT') ?: 3306);
+$dbname = getenv('DB_NAME') ?: 'borana_shoes';
+$username = getenv('DB_USER') ?: 'root';
+$password = getenv('DB_PASS') ?: '';
 
 const PRODUCT_CATEGORIES = [
     'women' => 'کتونی زنانه',
@@ -13,11 +14,23 @@ const PRODUCT_CATEGORIES = [
 ];
 
 try {
-    $pdo = new PDO(
-        "mysql:host=$host;dbname=$dbname;charset=utf8mb4",
-        $username,
-        $password
-    );
+    $databaseUrl = getenv('DATABASE_URL') ?: getenv('JAWSDB_URL') ?: '';
+
+    if ($databaseUrl !== '') {
+        $parts = parse_url($databaseUrl);
+        if ($parts !== false) {
+            $host = $parts['host'] ?? $host;
+            $port = isset($parts['port']) ? (int)$parts['port'] : $port;
+            $username = $parts['user'] ?? $username;
+            $password = $parts['pass'] ?? $password;
+            if (!empty($parts['path'])) {
+                $dbname = ltrim($parts['path'], '/');
+            }
+        }
+    }
+
+    $dsn = "mysql:host={$host};port={$port};dbname={$dbname};charset=utf8mb4";
+    $pdo = new PDO($dsn, $username, $password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
     die('Connection failed: ' . $e->getMessage());
@@ -141,4 +154,3 @@ switch ($action) {
     default:
         include 'views/home.php';
 }
-
