@@ -3,182 +3,155 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>کفش‌فروشی برانا - جدیدترین مدل‌های روز</title>
+    <title>کفش فروشی برانا | فروشگاه کتونی</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
 </head>
 <body>
-    <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
             <a class="navbar-brand" href="index.php">
-                <i class="bi bi-bag"></i> کفش‌فروشی برانا
+                <i class="bi bi-bag"></i> کفش فروشی برانا
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.php">
-                            <i class="bi bi-house"></i> ویترین فروشگاه
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.php?action=order">
-                            <i class="bi bi-cart-plus"></i> ثبت سفارش
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.php?action=about">
-                            <i class="bi bi-info-circle"></i> درباره ما
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.php?action=contact">
-                            <i class="bi bi-telephone"></i> تماس با ما
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.php?action=admin">
-                            <i class="bi bi-gear"></i> مدیریت
-                        </a>
-                    </li>
+                    <li class="nav-item"><a class="nav-link active" href="index.php"><i class="bi bi-house"></i> ویترین</a></li>
+                    <li class="nav-item"><a class="nav-link" href="index.php?action=order"><i class="bi bi-cart-plus"></i> ثبت سفارش</a></li>
+                    <li class="nav-item"><a class="nav-link" href="index.php?action=about"><i class="bi bi-info-circle"></i> درباره ما</a></li>
+                    <li class="nav-item"><a class="nav-link" href="index.php?action=contact"><i class="bi bi-telephone"></i> تماس با ما</a></li>
+                    <li class="nav-item"><a class="nav-link" href="index.php?action=admin"><i class="bi bi-gear"></i> مدیریت</a></li>
                 </ul>
             </div>
         </div>
     </nav>
 
-    <!-- Hero Section -->
     <section class="hero-section">
         <div class="container">
             <div class="fade-in">
-                <h1 class="hero-title">
-                    <i class="bi bi-bag"></i> جدیدترین مدل‌های روز
-                </h1>
-                <p class="hero-subtitle">بهترین کیفیت و طراحی برای شما</p>
+                <h1 class="hero-title"><i class="bi bi-stars"></i> جدیدترین مدل های روز</h1>
+                <p class="hero-subtitle">فروشگاه حرفه ای، سریع و ریسپانسیو</p>
             </div>
         </div>
     </section>
 
-    <!-- Products Section -->
-    <section class="py-5">
+    <section class="py-4">
         <div class="container">
             <?php
-            $products = getProducts();
-            if (count($products) > 0) {
-                echo '<div class="row">';
-                foreach ($products as $index => $product) {
-                    echo '<div class="col-lg-4 col-md-6 mb-4">';
-                    echo '<div class="product-card fade-in">';
-                    echo '<div class="position-relative overflow-hidden">';
-                    
-                    if ($product['image']) {
-                        echo '<img src="uploads/' . $product['image'] . '" alt="' . $product['name'] . '" class="product-image">';
-                    } else {
-                        echo '<div class="product-image d-flex align-items-center justify-content-center bg-light">';
-                        echo '<i class="bi bi-bag" style="font-size: 3rem; color: #667eea;"></i>';
-                        echo '</div>';
-                    }
-                    
-                    echo '<div class="position-absolute top-0 start-0 m-2">';
-                    echo '<span class="badge">جدید</span>';
-                    echo '</div>';
-                    echo '</div>';
-                    echo '<div class="p-3">';
-                    echo '<h5 class="fw-bold mb-3">' . $product['name'] . '</h5>';
-                    echo '<div class="d-flex justify-content-between align-items-center mb-3">';
-                    echo '<p class="price-tag mb-0">' . number_format($product['price']) . ' تومان</p>';
-                    echo '<div class="bg-light rounded px-2 py-1">';
-                    echo '<span class="text-warning"><i class="bi bi-star-fill"></i> 4.8</span>';
-                    echo '</div>';
-                    echo '</div>';
-                    echo '<div class="d-grid gap-2">';
-                    echo '<a href="index.php?action=product_detail&id=' . $product['id'] . '" class="btn btn-primary-custom text-white">';
-                    echo '<i class="bi bi-eye"></i> جزئیات و خرید';
-                    echo '</a>';
-                    echo '<a href="index.php?action=order" class="btn btn-outline-primary w-100">';
-                    echo '<i class="bi bi-cart-plus"></i> ثبت سفارش سریع';
-                    echo '</a>';
-                    echo '</div>';
-                    echo '</div>';
-                    echo '</div>';
-                    echo '</div>';
-                }
-                echo '</div>';
-            } else {
-                echo '<div class="text-center py-5">';
-                echo '<div class="fade-in">';
-                echo '<i class="bi bi-bag" style="font-size: 4rem; color: #667eea;"></i>';
-                echo '<h3 class="mt-3">فروشگاه در حال آماده‌سازی</h3>';
-                echo '<p class="text-muted">فروشگاه در حال حاضر خالی است. به زودی محصولات جدید اضافه می‌شوند.</p>';
-                echo '<a href="index.php?action=admin" class="btn btn-primary-custom mt-3">';
-                echo '<i class="bi bi-plus-circle"></i> افزودن محصول';
-                echo '</a>';
-                echo '</div>';
-                echo '</div>';
+            $categories = getCategories();
+            $selectedCategory = $_GET['category'] ?? 'all';
+            if ($selectedCategory !== 'all' && !array_key_exists($selectedCategory, $categories)) {
+                $selectedCategory = 'all';
             }
+
+            $products = $selectedCategory === 'all' ? getProducts() : getProducts($selectedCategory);
             ?>
+
+            <div class="category-menu fade-in">
+                <a href="index.php?category=all" class="category-chip <?php echo $selectedCategory === 'all' ? 'is-active' : ''; ?>">همه محصولات</a>
+                <?php foreach ($categories as $key => $label): ?>
+                    <a href="index.php?category=<?php echo urlencode($key); ?>" class="category-chip <?php echo $selectedCategory === $key ? 'is-active' : ''; ?>">
+                        <?php echo htmlspecialchars($label); ?>
+                    </a>
+                <?php endforeach; ?>
+            </div>
+
+            <?php if (count($products) > 0): ?>
+                <div class="products-grid">
+                    <?php foreach ($products as $index => $product): ?>
+                        <article class="product-item">
+                            <div class="product-card fade-in" style="animation-delay: <?php echo ($index % 8) * 0.06; ?>s;">
+                                <div class="product-media">
+                                    <?php if (!empty($product['image'])): ?>
+                                        <img src="uploads/<?php echo htmlspecialchars($product['image']); ?>" alt="<?php echo htmlspecialchars($product['name']); ?>" class="product-image">
+                                    <?php else: ?>
+                                        <div class="product-image d-flex align-items-center justify-content-center bg-light">
+                                            <i class="bi bi-bag" style="font-size:2.5rem;color:#2a6f97;"></i>
+                                        </div>
+                                    <?php endif; ?>
+                                    <span class="product-category-badge">
+                                        <?php echo htmlspecialchars($categories[$product['category']] ?? 'عمومی'); ?>
+                                    </span>
+                                </div>
+
+                                <div class="product-content">
+                                    <h3 class="product-title"><?php echo htmlspecialchars($product['name']); ?></h3>
+                                    <p class="price-tag"><?php echo number_format((int)$product['price']); ?> تومان</p>
+                                    <div class="d-grid gap-2">
+                                        <a href="index.php?action=product_detail&id=<?php echo (int)$product['id']; ?>" class="btn btn-primary-custom text-white">
+                                            <i class="bi bi-eye"></i> جزئیات و خرید
+                                        </a>
+                                        <a href="index.php?action=order" class="btn btn-outline-primary w-100">
+                                            <i class="bi bi-cart-plus"></i> سفارش سریع
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </article>
+                    <?php endforeach; ?>
+                </div>
+            <?php else: ?>
+                <div class="text-center py-5 fade-in empty-state">
+                    <i class="bi bi-search"></i>
+                    <h3 class="mt-3">محصولی در این دسته ثبت نشده است</h3>
+                    <p class="text-muted">از منوی بالا دسته دیگری را انتخاب کنید یا از مدیریت محصول جدید اضافه کنید.</p>
+                    <a href="index.php?action=admin" class="btn btn-primary-custom mt-2">
+                        <i class="bi bi-plus-circle"></i> افزودن محصول
+                    </a>
+                </div>
+            <?php endif; ?>
         </div>
     </section>
 
-    <!-- Features Section -->
     <section class="py-5 bg-light">
         <div class="container">
             <div class="row">
                 <div class="col-md-3 mb-4">
                     <div class="feature-box fade-in">
-                        <div class="feature-icon">
-                            <i class="bi bi-truck"></i>
-                        </div>
-                        <h5>ارسال رایگان</h5>
-                        <p class="text-muted">برای سفارشات بالای 500 هزار تومان</p>
+                        <div class="feature-icon"><i class="bi bi-truck"></i></div>
+                        <h5>ارسال سریع</h5>
+                        <p class="text-muted">تحویل سریع به سراسر کشور</p>
                     </div>
                 </div>
                 <div class="col-md-3 mb-4">
                     <div class="feature-box fade-in">
-                        <div class="feature-icon">
-                            <i class="bi bi-shield-check"></i>
-                        </div>
+                        <div class="feature-icon"><i class="bi bi-shield-check"></i></div>
                         <h5>پرداخت امن</h5>
-                        <p class="text-muted">پرداخت امن در محل</p>
+                        <p class="text-muted">فرآیند خرید مطمئن و ساده</p>
                     </div>
                 </div>
                 <div class="col-md-3 mb-4">
                     <div class="feature-box fade-in">
-                        <div class="feature-icon">
-                            <i class="bi bi-arrow-repeat"></i>
-                        </div>
-                        <h5>7 روز ضمانت</h5>
-                        <p class="text-muted">بازگشت کالا تا 7 روز</p>
+                        <div class="feature-icon"><i class="bi bi-arrow-repeat"></i></div>
+                        <h5>ضمانت تعویض</h5>
+                        <p class="text-muted">مهلت تست و تعویض کالا</p>
                     </div>
                 </div>
                 <div class="col-md-3 mb-4">
                     <div class="feature-box fade-in">
-                        <div class="feature-icon">
-                            <i class="bi bi-headset"></i>
-                        </div>
-                        <h5>پشتیبانی 24/7</h5>
-                        <p class="text-muted">همیشه در کنار شما هستیم</p>
+                        <div class="feature-icon"><i class="bi bi-headset"></i></div>
+                        <h5>پشتیبانی</h5>
+                        <p class="text-muted">پاسخگویی سریع به سفارش ها</p>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Footer -->
     <footer>
         <div class="container">
             <div class="row">
                 <div class="col-md-4">
-                    <h5><i class="bi bi-bag"></i> کفش‌فروشی برانا</h5>
-                    <p>بهترین کیفیت و طراحی برای شما</p>
+                    <h5><i class="bi bi-bag"></i> کفش فروشی برانا</h5>
+                    <p>تجربه خرید حرفه ای و مدرن</p>
                 </div>
                 <div class="col-md-4">
-                    <h5><i class="bi bi-link-45deg"></i> لینک‌های سریع</h5>
+                    <h5><i class="bi bi-link-45deg"></i> لینک سریع</h5>
                     <ul class="list-unstyled">
-                        <li><a href="index.php" class="text-white text-decoration-none">ویترین فروشگاه</a></li>
+                        <li><a href="index.php" class="text-white text-decoration-none">ویترین</a></li>
                         <li><a href="index.php?action=order" class="text-white text-decoration-none">ثبت سفارش</a></li>
                         <li><a href="index.php?action=admin" class="text-white text-decoration-none">پنل مدیریت</a></li>
                     </ul>
@@ -192,7 +165,7 @@
             </div>
             <hr class="bg-white">
             <div class="text-center">
-                <p>&copy; 2025 کفش‌فروشی برانا. تمامی حقوق محفوظ است.</p>
+                <p>&copy; 2026 کفش فروشی برانا. تمامی حقوق محفوظ است.</p>
             </div>
         </div>
     </footer>

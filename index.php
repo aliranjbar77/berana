@@ -5,12 +5,19 @@ session_start();
 $adminUser = getenv('ADMIN_USER') ?: 'admin';
 $adminPass = getenv('ADMIN_PASS') ?: 'change-this-password';
 
-// MySQL connection
-$host = 'beranashop';
-$port = '3306';
-$dbname = 'musing_bartik';
-$username = 'root';
-$password = 'fHtN4xVh7LI99F6PRSYoO5xB';
+const PRODUCT_CATEGORIES = [
+    'women' => 'کتونی زنانه',
+    'men' => 'کتونی مردانه',
+    'set' => 'کتونی ست',
+    'sport' => 'کتونی ورزشی',
+];
+
+// MySQL connection (Liara-safe defaults + ENV override)
+$host = getenv('DB_HOST') ?: 'beranashop';
+$port = getenv('DB_PORT') ?: '3306';
+$dbname = getenv('DB_NAME') ?: 'musing_bartik';
+$username = getenv('DB_USER') ?: 'root';
+$password = getenv('DB_PASS') ?: 'fHtN4xVh7LI99F6PRSYoO5xB';
 
 try {
     $pdo = new PDO(
@@ -30,9 +37,15 @@ $pdo->exec("
         name VARCHAR(200) NOT NULL,
         price INT NOT NULL,
         image VARCHAR(500),
+        category VARCHAR(30) NOT NULL DEFAULT 'women',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
 ");
+
+$categoryColumn = $pdo->query("SHOW COLUMNS FROM products LIKE 'category'");
+if (!$categoryColumn || $categoryColumn->rowCount() === 0) {
+    $pdo->exec("ALTER TABLE products ADD COLUMN category VARCHAR(30) NOT NULL DEFAULT 'women' AFTER image");
+}
 
 $pdo->exec("
     CREATE TABLE IF NOT EXISTS orders (
@@ -47,9 +60,26 @@ $pdo->exec("
     )
 ");
 
-function getProducts()
+function getCategories()
+{
+    return PRODUCT_CATEGORIES;
+}
+
+function normalizeCategory($category)
+{
+    $category = strtolower(trim((string)$category));
+    return array_key_exists($category, PRODUCT_CATEGORIES) ? $category : 'women';
+}
+
+function getProducts($category = null)
 {
     global $pdo;
+    if ($category !== null && array_key_exists($category, PRODUCT_CATEGORIES)) {
+        $stmt = $pdo->prepare("SELECT * FROM products WHERE category = ? ORDER BY created_at DESC");
+        $stmt->execute([$category]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     $stmt = $pdo->query("SELECT * FROM products ORDER BY created_at DESC");
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
@@ -66,11 +96,11 @@ function getOrders()
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-function addProduct($name, $price, $image)
+function addProduct($name, $price, $image, $category = 'women')
 {
     global $pdo;
-    $stmt = $pdo->prepare("INSERT INTO products (name, price, image) VALUES (?, ?, ?)");
-    return $stmt->execute([$name, $price, $image]);
+    $stmt = $pdo->prepare("INSERT INTO products (name, price, image, category) VALUES (?, ?, ?, ?)");
+    return $stmt->execute([$name, $price, $image, normalizeCategory($category)]);
 }
 
 function addOrder($name, $phone, $address, $product_id)
