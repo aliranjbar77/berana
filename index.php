@@ -71,6 +71,24 @@ function normalizeCategory($category)
     return array_key_exists($category, PRODUCT_CATEGORIES) ? $category : 'women';
 }
 
+function productImagePath($filename)
+{
+    $safe = basename((string)$filename);
+    if ($safe === '') {
+        return '';
+    }
+    return __DIR__ . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . $safe;
+}
+
+function productImageUrl($filename)
+{
+    $safe = basename((string)$filename);
+    if ($safe === '') {
+        return '';
+    }
+    return 'index.php?action=image&file=' . rawurlencode($safe);
+}
+
 function getProducts($category = null)
 {
     global $pdo;
@@ -125,6 +143,23 @@ function deleteOrder($id)
 }
 
 $action = $_GET['action'] ?? 'home';
+
+if ($action === 'image') {
+    $file = $_GET['file'] ?? '';
+    $path = productImagePath($file);
+
+    if ($path === '' || !is_file($path)) {
+        http_response_code(404);
+        exit;
+    }
+
+    $mime = mime_content_type($path) ?: 'application/octet-stream';
+    header('Content-Type: ' . $mime);
+    header('Content-Length: ' . filesize($path));
+    header('Cache-Control: public, max-age=86400');
+    readfile($path);
+    exit;
+}
 
 if ($action === 'admin_login' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $usernameInput = $_POST['username'] ?? '';
