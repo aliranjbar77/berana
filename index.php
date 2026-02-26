@@ -1,16 +1,49 @@
 <?php
 session_start();
 
-// Admin login config (set these as environment variables in hosting)
-$adminUser = getenv('ADMIN_USER') ?: 'admin';
-$adminPass = getenv('ADMIN_PASS') ?: 'change-this-password';
+function envValue($key, $default = null)
+{
+    $value = getenv($key);
+    if ($value === false || $value === '') {
+        return $default;
+    }
+    return $value;
+}
 
-// MySQL connection
-$host = 'beranashop';
-$port = '3306';
-$dbname = 'musing_bartik';
-$username = 'root';
-$password = 'fHtN4xVh7LI99F6PRSYoO5xB';
+function envBool($key, $default = false)
+{
+    $value = envValue($key, null);
+    if ($value === null) {
+        return $default;
+    }
+    return filter_var($value, FILTER_VALIDATE_BOOLEAN);
+}
+
+$isDebug = envBool('DEBUG', false);
+
+// Admin login config
+$adminUser = envValue('ADMIN_USER', 'admin');
+$adminPass = envValue('ADMIN_PASS', 'change-this-password');
+
+// MySQL config (prefer env vars)
+$host = envValue('DB_HOST', envValue('MYSQL_HOST', 'beranashop'));
+$port = envValue('DB_PORT', envValue('MYSQL_PORT', '3306'));
+$dbname = envValue('DB_NAME', envValue('MYSQL_DATABASE', 'musing_bartik'));
+$username = envValue('DB_USER', envValue('MYSQL_USER', 'root'));
+$password = envValue('DB_PASS', envValue('MYSQL_PASSWORD', ''));
+
+// Optional DATABASE_URL support: mysql://user:pass@host:port/dbname
+$databaseUrl = envValue('DATABASE_URL', null);
+if ($databaseUrl) {
+    $parts = parse_url($databaseUrl);
+    if ($parts && isset($parts['scheme']) && strtolower($parts['scheme']) === 'mysql') {
+        $host = $parts['host'] ?? $host;
+        $port = isset($parts['port']) ? (string)$parts['port'] : $port;
+        $dbname = isset($parts['path']) ? ltrim($parts['path'], '/') : $dbname;
+        $username = $parts['user'] ?? $username;
+        $password = $parts['pass'] ?? $password;
+    }
+}
 
 try {
     $pdo = new PDO(
@@ -20,7 +53,10 @@ try {
     );
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
-    die("Connection failed: " . $e->getMessage());
+    if ($isDebug) {
+        die("Database connection failed: " . $e->getMessage());
+    }
+    die("Database connection failed. Check DB env variables.");
 }
 
 // Create tables if they do not exist
@@ -106,7 +142,7 @@ if ($action === 'admin_login' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    $_SESSION['admin_error'] = 'نام کاربری یا رمز عبور اشتباه است.';
+    $_SESSION['admin_error'] = 'Invalid admin username or password.';
     header('Location: index.php?action=admin');
     exit;
 }
